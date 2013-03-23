@@ -13,7 +13,7 @@
         Published {{ post.published }}<br />
         Received {{ post.received }}
     </div>
-    <h1 class="post_title">{{ post.title }}</h1>
+    <h1 class="post_title"><a href="{{ post.link }}">{{ post.title }}</a></h1>
     <div class="byline">
         <span class="feed_title_label">from</span>
         <span class="feed_title">{{ post.feed__title }}</span>

@@ -108,6 +108,7 @@ class AggregateView(ListView):
             'content',
             'feed__title',
             'id',
+            'link',
             ))
 
         read_flags = {post_read.post.pk

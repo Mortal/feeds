@@ -45,6 +45,11 @@ body {
    color: #00c;
 }
 
+.post_title a {
+   color: inherit;
+   text-decoration: none;
+}
+
 .byline {
    color: #666;
    font-size: 95%;
