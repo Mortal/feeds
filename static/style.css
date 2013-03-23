@@ -1,0 +1,114 @@
+/* vim:set sw=3 sts=3 et: */
+body {
+   font-family: Verdana, Helvetica, sans-serif;
+   color: #111;
+}
+
+.post {
+   padding: 1em;
+   border: 1px solid #999;
+   border-radius: 3px;
+   box-shadow: 0 0 4px #ddd;
+   margin-bottom: 2em;
+}
+
+.post_title {
+   font-size: 150%;
+   margin-top: 0;
+}
+
+.unread .post_title {
+   color: #00c;
+}
+
+.byline {
+   color: #666;
+   font-size: 95%;
+}
+
+.post_author, .feed_title {
+   color: #222;
+}
+
+.post_content {
+   max-width: 900px;
+}
+
+.post_time {
+   float: right;
+   font-size: 90%;
+   color: #333;
+}
+
+.post_time_short {
+   display: none;
+}
+
+.collapsed .post {
+   padding: .4em;
+   padding-left: 140px;
+   padding-right: 110px;
+   margin: 0;
+   border-right: 0 none;
+   border-bottom: 0 none;
+   border-left: 0 none;
+   box-shadow: none;
+   border-radius: 0;
+   height: 1.2em;
+   overflow: hidden;
+   position: relative;
+   white-space: nowrap;
+}
+
+.collapsed br {
+   display: none;
+}
+
+.collapsed .post_title {
+   display: inline;
+   font-size: 100%;
+   margin: 0;
+}
+
+.collapsed .post_content {
+   display: inline;
+   color: #666;
+}
+
+.collapsed .post_content > * {
+   display: inline;
+   margin: 0;
+   padding: 0;
+}
+
+.collapsed .byline {
+   display: inline;
+}
+
+.collapsed .post_author_label, .collapsed .post_author, .collapsed .feed_title_label {
+   display: none;
+}
+
+.collapsed .feed_title {
+   position: absolute;
+   font-size: 100%;
+   width: 130px;
+   top: .4em;
+   left: .4em;
+   overflow: hidden;
+}
+
+.collapsed .post_time {
+   display: none;
+}
+
+.collapsed .post_time_short {
+   display: block;
+   width: 95px;
+   background-color: white;
+   position: absolute;
+   top: .4em;
+   right: 0;
+   padding-right: 5px;
+   padding-left: 10px;
+}

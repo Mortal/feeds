@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block head %}
+<script src="{{ STATIC_URL }}feeds/posts.js"></script>
+{% endblock %}
+{% block content %}
+<ul>
+    <li><a href="{% url "feeds" %}">Manage subscriptions</a></li>
+</ul>
+<div>
+{% for post in post_list %}
+<div class="post {% if post.read %}read{% else %}unread{% endif %}">
+    <div class="post_time_short">
+        {{ post.received }}
+    </div>
+    <div class="post_time">
+        Published {{ post.published }}<br />
+        Received {{ post.received }}
+    </div>
+    <h1 class="post_title">{{ post.title }}</h1>
+    <div class="byline">
+        <span class="feed_title_label">from</span>
+        <span class="feed_title">{{ post.feed__title }}</span>
+        <span class="post_author_label">by</span>
+        <span class="post_author">{{ post.author }}</span></div>
+    {% if post.read %}
+    <form method="post" action="{% url "post_unread" pk=post.id %}"
+        data-alt-action="{% url "post_read" pk=post.id %}"
+        data-alt-label="Mark read"
+        data-new-state="unread"
+        onsubmit="swap_form(this)">{% csrf_token %}
+        <input name="submit_button" type="submit" value="Mark unread" />
+    </form>
+    {% else %}
+    <form method="post" action="{% url "post_read" pk=post.id %}"
+        data-alt-action="{% url "post_unread" pk=post.id %}"
+        data-alt-label="Mark unread"
+        data-new-state="read"
+        onsubmit="swap_form(this)">{% csrf_token %}
+        <input name="submit_button" type="submit" value="Mark read" />
+    </form>
+    {% endif %}
+    <div class="post_content">{{ post.content|safe }}</div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}

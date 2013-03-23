@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<p><a href="{% url "add" %}">Add</a></p>
+<p>You are subscribed to the following feeds.</p>
+<ul>
+{% for feed in feed_list %}
+<li>{{ feed.title }}
+<form method="post" action="{% url "feed_fetch" pk=feed.pk %}" style="display: inline">{% csrf_token %}
+<input type="submit" value="Fetch" />
+</form>
+<a href="{% url "feed_unsubscribe" pk=feed.pk %}">Unsubscribe</a></li>
+{% endfor %}
+</ul>
+{% endblock %}
