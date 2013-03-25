@@ -1,16 +1,16 @@
 # Create your views here.
 from django.views.generic import ListView, FormView, TemplateView, View
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 import django.contrib.auth.views
 from django import forms
 from django.core.urlresolvers import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.db import IntegrityError
 
-from .models import Post, Feed, PostRead
+from .models import Post, Feed, PostRead, FeedTag, Subscription
 from .feedparser import valid_feed_url
 
 class AddForm(forms.Form):
@@ -21,7 +21,7 @@ class AddForm(forms.Form):
         feed_meta = valid_feed_url(data)
         if not feed_meta.valid:
             raise forms.ValidationError(feed_meta.error)
-        if Feed.objects.filter(subscribers=self.user, feed_url=feed_meta.url).exists():
+        if Feed.objects.filter(subscription__user=self.user, feed_url=feed_meta.url).exists():
             raise forms.ValidationError("You are already subscribed to that feed.")
         return feed_meta.url
 
@@ -46,8 +46,8 @@ class AddView(FormView):
         except Feed.DoesNotExist:
             feed = Feed(feed_url=url, title=url)
             feed.save()
-        feed.subscribers.add(self.request.user)
-        feed.save()
+        sub = Subscription(feed=feed, user=self.request.user, title=url)
+        sub.save()
 
         return super(AddView, self).form_valid(form)
 
@@ -89,27 +89,40 @@ class AggregateView(ListView):
         return super(AggregateView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        queryset = list(Post.objects.filter(
-                feed__subscribers=self.request.user).order_by('-received')[:30].values(
-                    'received',
-                    'published',
-                    'title',
-                    'author',
-                    'content',
-                    'feed__title',
-                    'id',
-                    ))
+        queryset = Post.objects.filter(
+                feed__subscription__user=self.request.user)
 
-        read_flags = {post_read.post.pk for post_read in PostRead.objects.filter(user=self.request.user, post__in=[post['id'] for post in queryset])}
+        if 'tag' in self.kwargs:
+            tag = get_object_or_404(FeedTag, pk__exact=self.kwargs['tag'])
+            queryset = queryset.filter(feed__subscription__tags=tag)
+
+        elif 'sub' in self.kwargs:
+            sub = get_object_or_404(Subscription, pk__exact=self.kwargs['sub'])
+            queryset = queryset.filter(feed__subscription=sub)
+
+        values = list(queryset.order_by('-received')[:30].values(
+            'received',
+            'published',
+            'title',
+            'author',
+            'content',
+            'feed__title',
+            'id',
+            ))
+
+        read_flags = {post_read.post.pk
+                for post_read in
+                PostRead.objects.filter(
+                    user=self.request.user,
+                    post__in=[post['id'] for post in values])}
 
         def add_read_flag(post):
             post['read'] = (post['id'] in read_flags)
             return post
 
-        queryset = [
-                add_read_flag(post) for post in queryset]
+        values = [add_read_flag(post) for post in values]
 
-        return queryset
+        return values
 
 class FeedsView(ListView):
     template_name = 'feeds/feeds.html'
@@ -121,7 +134,7 @@ class FeedsView(ListView):
 
     def get_queryset(self):
         return Feed.objects.filter(
-                subscribers=self.request.user)
+                subscription__user=self.request.user)
 
 class FeedUnsubscribeView(TemplateView):
     template_name = 'feeds/unsubscribe.html'
@@ -131,8 +144,7 @@ class FeedUnsubscribeView(TemplateView):
         return super(FeedUnsubscribeView, self).dispatch(*args, **kwargs)
 
     def post(self, request, pk):
-        feed = Feed.objects.get(pk=pk)
-        feed.subscribers.remove(self.request.user)
+        Subscription.objects.filter(feed__pk__exact=pk, user=self.request.user).delete()
         return redirect('aggregate')
 
 class MarkReadView(View):

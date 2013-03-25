@@ -26,7 +26,6 @@ class Feed(models.Model):
     title = models.CharField(max_length=500)
     feed_url = models.CharField(max_length=500)
     home_url = models.CharField(max_length=500, blank=True)
-    subscribers = models.ManyToManyField(User)
     last_fetched = models.DateTimeField(auto_now_add=True)
 
     def fetch(self):
@@ -43,6 +42,8 @@ class Feed(models.Model):
             return
 
         self.defunct = False
+        if self.title == self.feed_url:
+            self.subscription_set.filter(title__exact=self.title).update(title=d.feed.title)
         self.title = d.feed.title
         self.home_url = d.feed.link
         self.last_fetched = datetime.datetime.now()
@@ -76,3 +77,13 @@ class Feed(models.Model):
             added = added + 1
 
         logging.info(u"Parsed feed ["+self.title+u"]. "+str(len(d.entries))+u" entries of which "+str(added)+u" were added to database.")
+
+class FeedTag(models.Model):
+    user = models.ForeignKey(User)
+    name = models.CharField(max_length=500)
+
+class Subscription(models.Model):
+    feed = models.ForeignKey(Feed)
+    user = models.ForeignKey(User)
+    tags = models.ManyToManyField(FeedTag)
+    title = models.CharField(max_length=500)

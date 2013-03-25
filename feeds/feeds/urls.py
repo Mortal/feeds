@@ -3,6 +3,8 @@ from .views import AddView, AggregateView, FeedsView, FeedUnsubscribeView, Fetch
 
 urlpatterns = patterns('',
     url(r'^$', AggregateView.as_view(), name='aggregate'),
+    url(r'^feed/(?P<sub>\d+)/$', AggregateView.as_view(), name='single_feed'),
+    url(r'^feed/tag/(?P<tag>\d+)/$', AggregateView.as_view(), name='single_tag'),
     url(r'^feed/$', FeedsView.as_view(), name='feeds'),
     url(r'^feed/add/$', AddView.as_view(), name='add'),
     url(r'^feed/(?P<pk>\d+)/unsubscribe/$', FeedUnsubscribeView.as_view(), name='feed_unsubscribe'),

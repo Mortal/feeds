@@ -1,3 +1,5 @@
+from django.conf import global_settings
+
 # Django settings for feeds project.
 
 import os
@@ -166,3 +168,8 @@ LOGGING = {
 LOGIN_URL = 'login'
 
 LOGIN_REDIRECT_URL = 'aggregate'
+
+TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+    "feeds.feeds.context_processors.sub_list",
+)
+

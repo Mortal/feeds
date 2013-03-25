@@ -3,9 +3,6 @@
 <script src="{{ STATIC_URL }}feeds/posts.js"></script>
 {% endblock %}
 {% block content %}
-<ul>
-    <li><a href="{% url "feeds" %}">Manage subscriptions</a></li>
-</ul>
 <div>
 {% for post in post_list %}
 <div class="post {% if post.read %}read{% else %}unread{% endif %}">

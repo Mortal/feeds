@@ -1,0 +1,10 @@
+{# vim:set ft=htmldjango: #}
+<ul>
+<li><a href="{% url "feeds" %}">Manage subscriptions</a></li>
+<li><a href="{% url "aggregate" %}">All posts</a></li>
+</ul>
+<ul>
+{% for sub in sub_list %}
+<li><a href="{% url "single_feed" sub=sub.pk %}">{{ sub.title }}</a></li>
+{% endfor %}
+</ul>
